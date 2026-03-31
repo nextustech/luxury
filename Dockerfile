@@ -43,20 +43,6 @@ RUN docker-php-ext-install \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
-# Install dependencies required for pecl_http
-RUN apt-get update && apt-get install -y \
-    libcurl4-openssl-dev \
-    libevent-dev \
-    pkg-config \
-    libssl-dev
-
-# Install required PECL extensions
-RUN pecl install raphf \
-    && docker-php-ext-enable raphf
-
-RUN pecl install pecl_http \
-    && docker-php-ext-enable http
-    
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -69,8 +55,9 @@ COPY . .
 # Copy built frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Install Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install Laravel dependencies (IGNORE ext-http issue)
+RUN composer install --no-dev --optimize-autoloader \
+    --ignore-platform-req=ext-http
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www \
