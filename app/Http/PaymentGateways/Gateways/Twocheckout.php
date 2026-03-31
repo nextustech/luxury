@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Dipokhalder\Settings\Facades\Settings;
 
-class twocheckout extends PaymentAbstract
+class Twocheckout extends PaymentAbstract
 {
     public mixed $response;
 
