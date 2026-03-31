@@ -34,6 +34,25 @@ RUN docker-php-ext-install \
     zip \
     intl
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    curl
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd exif pdo pdo_mysql zip
+
+# (Optional) Install PECL extensions like http if needed
+RUN pecl install pecl_http \
+    && docker-php-ext-enable http
+    
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
