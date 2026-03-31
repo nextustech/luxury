@@ -27,11 +27,7 @@
                         </ul>
                     </div>
 
-                    <router-link v-if="pos.permission"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center text-primary bg-[#FFEBD8]"
-                        :to="{ path: '/admin/' + pos.url }">
-                        <i class="lab lab-fill-pos lab-font-size-16 font-fill-pos"></i>
-                    </router-link>
+
                 </div>
             </div>
             <button @click="toggleSidebar" class="fa-solid fa-align-left db-header-nav w-9 h-9 rounded-lg text-primary bg-primary/5"></button>
@@ -321,7 +317,7 @@ export default {
         toggleSidebar : function(){
             return appService.toggleSidebar()
         },
-        
+
     }
 }
 </script>
