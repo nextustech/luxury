@@ -4,6 +4,7 @@
 FROM node:18 AS frontend
 
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
 
@@ -16,7 +17,7 @@ RUN npm run build
 # =========================
 FROM php:8.2-fpm-alpine
 
-# Install packages
+# Install system packages (Alpine)
 RUN apk add --no-cache \
     nginx \
     bash \
@@ -25,58 +26,47 @@ RUN apk add --no-cache \
     unzip \
     libzip-dev \
     oniguruma-dev \
-    icu-dev
+    icu-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev
 
 # Install PHP extensions
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
     zip \
-    intl
+    intl \
+    exif
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl
-
-# Install PHP extensions
+# Install GD (image support)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd exif pdo pdo_mysql zip
+    && docker-php-ext-install gd
 
-# (Optional) Install PECL extensions like http if needed
-RUN pecl install pecl_http \
-    && docker-php-ext-enable http
-    
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working dir
+# Set working directory
 WORKDIR /var/www
 
-# Copy project
+# Copy project files
 COPY . .
 
-# Copy built frontend from stage 1
+# Copy built frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Install Laravel deps
+# Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Permissions
+# Set correct permissions
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-# Nginx config
+# Copy Nginx config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
 # Expose port
 EXPOSE 80
 
-# Start services
-CMD sh -c "php-fpm -D && nginx -g 'daemon off;'"
+# Start PHP-FPM + Nginx
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
