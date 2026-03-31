@@ -55,9 +55,11 @@ COPY . .
 # Copy built frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Install Laravel dependencies (IGNORE ext-http issue)
-RUN composer install --no-dev --optimize-autoloader \
-    --ignore-platform-req=ext-http
+# 🔥 IMPORTANT FIX: avoid .env parsing errors + skip scripts
+RUN cp .env.example .env || true \
+    && composer install --no-dev --optimize-autoloader \
+    --ignore-platform-req=ext-http \
+    --no-scripts
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www \
