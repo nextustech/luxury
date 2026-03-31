@@ -1,19 +1,5 @@
 <template>
-    <SliderComponent />
 
-    <CategoryComponent />
-
-    <PromotionComponent />
-
-    <ProductSectionComponent />
-
-    <MostPopularComponent />
-
-    <FlashSaleComponent />
-
-    <ProductBrandComponent />
-
-    <BenefitComponent />
 </template>
 
 <script>
